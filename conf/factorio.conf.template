@@ -1,0 +1,14 @@
+upstream factorio_upstreams {
+    #----------factorio----------
+    server ${FORWARD_SERVER}:34197; #ゲームポート
+    server ${FORWARD_SERVER}:27015; #RCONポート
+}
+
+server {
+    error_log /var/log/nginx/error.log debug;
+    access_log /var/log/nginx/access.log proxy buffer=32k;
+    listen 34197 udp;
+    listen 27015;
+    proxy_pass factorio_upstreams;
+    proxy_timeout 60s;
+}

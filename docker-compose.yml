@@ -1,0 +1,42 @@
+services:
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginx
+    environment:
+      - FORWARD_SERVER=${SERVER_ADDRESS}
+    ports:
+      #----------Minecraft JavaEdition----------
+      - "25565:25565/tcp"
+      #----------Minecraft BedrockEdition----------
+      - "19132:19132/udp"
+      #----------PalWorld----------
+      - "8211:8211/udp"
+      #----------7days to die----------
+      #- "26900:8080/tcp" #Steam のマスター サーバー リスト
+      #- "26900:8081/tcp" #Steam のマスター サーバー リスト
+      - "26900:26900/tcp" #Steam のマスター サーバー リスト
+      - "26900:26900/udp" #Steam のマスター サーバー リスト
+      - "26901:26901/udp" #Steam通信
+      - "26902:26902/udp" #LiteNetLib 経由のネットワーク
+      #----------SatisFactory----------
+      - '7777:7777/tcp'
+      - '7777:7777/udp'
+      #----------Factorio----------
+      - "34197:34197/udp"
+      - "27015:27015/tcp"
+    command: >
+      sh -c "
+      envsubst '$$FORWARD_SERVER' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf &&
+      SRC_DIR="/etc/nginx/sites-available" &&
+      DEST_DIR="/etc/nginx/sites-enabled" &&
+      mkdir -p "$$DEST_DIR" &&
+      for template_file in \$$SRC_DIR/*.template; do
+        output_file="$$DEST_DIR/$$(basename "$$template_file" .template)" &&
+        envsubst '$$FORWARD_SERVER' < $$template_file > $$output_file;
+      done &&
+      nginx -g 'daemon off;'
+      "
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./conf:/etc/nginx/sites-available/
+      - ./nginx-log:/var/log/nginx

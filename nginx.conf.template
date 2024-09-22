@@ -1,0 +1,13 @@
+worker_processes 2;
+
+events {
+    worker_connections 1024;
+}
+
+stream {
+    log_format proxy '$remote_addr [$time_local] '
+                     '$protocol $status $bytes_sent $bytes_received '
+                     '$session_time "$upstream_addr" '
+                     '"$upstream_bytes_sent" "$upstream_bytes_received" "$upstream_connect_time"';
+    include /etc/nginx/sites-enabled/*.conf;
+}

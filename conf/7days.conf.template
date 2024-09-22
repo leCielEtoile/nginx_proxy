@@ -1,0 +1,21 @@
+upstream 7days_upstreams {
+    #----------7days to die----------
+    #server ${FORWARD_SERVER}:8080;     #Webダッシュボードポート:8080 (config有効時)
+    #server ${FORWARD_SERVER}:8081;     #Telnet制御インターフェース:8081 (config有効時)
+    server ${FORWARD_SERVER}:26900;     #TCP:ゲーム詳細クエリポート UDP:Steam のマスター サーバー リスト
+    server ${FORWARD_SERVER}:26901;     #Steam通信
+    server ${FORWARD_SERVER}:26902;     #LiteNetLib 経由のネットワーク
+}
+
+server {
+    error_log /var/log/nginx/error.log debug;
+    access_log /var/log/nginx/access.log proxy buffer=32k;
+    #listen 8080;
+    #listen 8081;
+    listen 26900;
+    listen 26900 udp;
+    listen 26901 udp;
+    listen 26902 udp;
+    proxy_pass 7days_upstreams;
+    proxy_timeout 60s;
+}
